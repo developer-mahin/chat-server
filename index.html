@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body
+    style="background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6)), url(https://i.ibb.co/vPj5LL0/logo.png); 
+                background-position: center; background-repeat: no-repeat; background-size: contain;  display: flex; align-items:  center; justify-content: center; height: 98vh; color: white;">
+    <div>
+        <h1 style="text-align:center ; font-size: 70px; margin: 0;">Hello ${decoded.name}</h1>
+        <p style="text-align:center ;font-size: 50px; margin: 0;">You are now a verified user</p>
+        <p style="text-align:center ;font-size: 40px; margin: 0;">Please login your with your account</p>
+        <div style="display: flex; align-items: center; justify-content: center; margin-top: 20px;">
+            <a href="${process.env.CLIENT_URL}auth"
+                style="padding: 12px 20px; background-color: aqua; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 30px;">Login</a>
+        </div>
+    </div>
+</body>
+
+</html>
