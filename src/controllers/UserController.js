@@ -7,7 +7,8 @@ const jwt = require("jsonwebtoken");
 
 exports.signUp = async (req, res, next) => {
   try {
-    const { name, email, password, image } = req.body;
+    const { name, email, password } = req.body;
+    const image = req.file.filename;
 
     const isExist = await User.exists({ email });
     if (isExist) {
@@ -22,6 +23,7 @@ exports.signUp = async (req, res, next) => {
       email,
       password: hashedPassword,
       status: "active",
+      image,
     };
     const token = await jsonWebToken(userData, process.env.ACCESS_TOKEN, "10m");
 
@@ -71,7 +73,7 @@ exports.verifyUser = async (req, res, next) => {
     if (!token) {
       throw new Error("Token not found");
     }
-    console.log(token);
+
     try {
       const decoded = jwt.verify(token, process.env.ACCESS_TOKEN);
 
@@ -81,35 +83,7 @@ exports.verifyUser = async (req, res, next) => {
       }
 
       await User.create(decoded);
-
-      res.send(
-        `
-        <!DOCTYPE html>
-        <html lang="en">
-        
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Document</title>
-        </head>
-        
-        <body
-            style="background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6)), url(https://i.ibb.co/vPj5LL0/logo.png); 
-                        background-position: center; background-repeat: no-repeat; background-size: contain;  display: flex; align-items:  center; justify-content: center; height: 98vh; color: white;">
-            <div>
-                <h1 style="text-align:center ; font-size: 70px; margin: 0;">Hello ${decoded.name}</h1>
-                <p style="text-align:center ;font-size: 50px; margin: 0;">You are now a verified user</p>
-                <p style="text-align:center ;font-size: 40px; margin: 0;">Please login your with your account</p>
-                <div style="display: flex; align-items: center; justify-content: center; margin-top: 20px;">
-                    <a href="${process.env.CLIENT_URL}auth"
-                        style="padding: 12px 20px; background-color: aqua; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 30px;">Login</a>
-                </div>
-            </div>
-        </body>
-        
-        </html>
-            `
-      );
+      res.redirect(`${process.env.CLIENT_URL}login`);
     } catch (error) {
       if (error.name === "TokenExpiredError") {
         throw createError(401, "Token expired");
@@ -157,6 +131,7 @@ exports.signIn = async (req, res, next) => {
       email,
       password: user.password,
       status: "active",
+      registerTime: user.createAt,
     };
 
     const token = await jsonWebToken(
@@ -165,14 +140,14 @@ exports.signIn = async (req, res, next) => {
       "365days"
     );
 
-    res.cookie("access_token", token, {
-      maxAge: 24 * 60 * 60 * 1000,
+    const option = {
+      maxAge: 365 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       secure: true,
       sameSite: "none",
-    });
+    };
 
-    res.status(200).json({
+    res.status(201).cookie("access_token", token, option).json({
       success: true,
       message: "user login successfully",
       user,
@@ -180,5 +155,6 @@ exports.signIn = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+    console.log(error.message);
   }
 };
