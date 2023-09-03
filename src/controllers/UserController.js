@@ -129,6 +129,8 @@ exports.signIn = async (req, res, next) => {
     const userData = {
       id: user._id,
       email,
+      image: user.image,
+      name: user.name,
       password: user.password,
       status: "active",
       registerTime: user.createAt,
@@ -149,7 +151,7 @@ exports.signIn = async (req, res, next) => {
 
     res.status(201).cookie("access_token", token, option).json({
       success: true,
-      message: "user login successfully",
+      message: "User Login Successful",
       user,
       token,
     });

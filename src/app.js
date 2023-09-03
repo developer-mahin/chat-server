@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const createError = require("http-errors");
 const cookieParser = require("cookie-parser");
 
+app.use("/public", express.static("public"));
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
