@@ -4,8 +4,10 @@ const cors = require("cors");
 const morgan = require("morgan");
 const createError = require("http-errors");
 const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 
 app.use("/public", express.static("public"));
+app.use(bodyParser.json());
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
@@ -16,7 +18,9 @@ app.use(morgan("dev"));
  *
  * */
 const authRoute = require("./routes/authRoute");
+const userRouter = require("./routes/userRoute");
 app.use("/api/v1/auth", authRoute);
+app.use("/api/v1/user", userRouter);
 
 /**
  * All Router

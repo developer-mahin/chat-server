@@ -160,3 +160,18 @@ exports.signIn = async (req, res, next) => {
     console.log(error.message);
   }
 };
+
+exports.getAllUser = async (req, res, next) => {
+  try {
+    const id = req.myId;
+    const users = await User.find({});
+    const filterData = users.filter((user) => user.id !== id);
+    res.status(200).json({
+      success: true,
+      message: "successfully get the data",
+      users: filterData,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
