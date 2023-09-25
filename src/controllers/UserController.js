@@ -4,12 +4,12 @@ const bcrypt = require("bcryptjs");
 const createError = require("http-errors");
 const { verifyEmailAddress } = require("../utils/emailVerification");
 const jwt = require("jsonwebtoken");
+const Message = require("../models/messageModel");
 
 exports.signUp = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
     const image = req.file.filename;
-
     const isExist = await User.exists({ email });
     if (isExist) {
       throw new Error(
@@ -161,15 +161,95 @@ exports.signIn = async (req, res, next) => {
   }
 };
 
+const getLastMessage = async (myId, friendId) => {
+  const msg = await Message.findOne({
+    $or: [
+      {
+        $and: [
+          {
+            senderId: {
+              $eq: myId,
+            },
+          },
+          {
+            receiverId: {
+              $eq: friendId,
+            },
+          },
+        ],
+      },
+      {
+        $and: [
+          {
+            senderId: {
+              $eq: friendId,
+            },
+          },
+          {
+            receiverId: {
+              $eq: myId,
+            },
+          },
+        ],
+      },
+    ],
+  }).sort({
+    updatedAt: -1,
+  });
+
+  return msg;
+};
+
 exports.getAllUser = async (req, res, next) => {
   try {
-    const id = req.myId;
-    const users = await User.find({});
-    const filterData = users.filter((user) => user.id !== id);
+    const myId = req.myId;
+    let friendInformation = [];
+
+    const users = await User.find({
+      _id: { $ne: myId },
+    });
+
+    for (let i = 0; i < users.length; i++) {
+      let lastMessage = await getLastMessage(myId, users[i].id);
+
+      friendInformation = [
+        ...friendInformation,
+        { friendInfo: users[i], messageInfo: lastMessage },
+      ];
+    }
+
     res.status(200).json({
       success: true,
       message: "successfully get the data",
-      users: filterData,
+      users: friendInformation,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllUserWithGetMethod = async (req, res, next) => {
+  try {
+    const myId = req.myId;
+    let friendInformation = [];
+
+    const users = await User.find({
+      _id: { $ne: myId },
+    });
+
+    for (let i = 0; i < users.length; i++) {
+      let lastMessage = await getLastMessage(myId, users[i].id);
+
+      friendInformation = [
+        ...friendInformation,
+        { friendInfo: users[i], messageInfo: lastMessage },
+      ];
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "successfully get the data",
+      users: friendInformation,
     });
   } catch (error) {
     next(error);

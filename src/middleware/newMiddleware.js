@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 
-module.exports.authFilteringMiddleware = async (req, res, next) => {
+module.exports.newMiddleWare = async (req, res, next) => {
   try {
-    const { token } = req.body;
+    const { token } = req.params;
     if (token) {
       const decoded = jwt.verify(token, process.env.ACCESS_TOKEN);
       if (decoded) {
