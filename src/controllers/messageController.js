@@ -5,7 +5,7 @@ exports.sendMessage = async (req, res, next) => {
     const { senderName, receiverId, message } = req.body;
     const senderId = req.myId;
 
-    const sendMessage = await Message.create({
+    const insetMessage = await Message.create({
       senderId,
       senderName,
       receiverId,
@@ -15,17 +15,11 @@ exports.sendMessage = async (req, res, next) => {
       },
     });
 
+    console.log(insetMessage);
+
     res.status(201).json({
       success: true,
-      message: {
-        senderId,
-        senderName,
-        receiverId,
-        message: {
-          text: message,
-          image: "",
-        },
-      },
+      message: insetMessage,
     });
   } catch (error) {
     next(error);
@@ -36,7 +30,7 @@ exports.sendImageMessage = async (req, res, next) => {
   try {
     const senderId = req.myId;
     const { senderName, receiverId, image } = req.body;
-    console.log(image);
+
     const insetMessage = await Message.create({
       senderId,
       senderName,
@@ -49,19 +43,37 @@ exports.sendImageMessage = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: {
-        senderId,
-        senderName,
-        receiverId,
-        message: {
-          text: "",
-          image: image,
-        },
-      },
+      message: insetMessage,
     });
   } catch (error) {
     next(error);
   }
+};
+
+exports.seenMessage = async (req, res, next) => {
+  const messageId = req.body._id;
+  await Message.findByIdAndUpdate(messageId, { status: "seen" })
+    .then(() => {
+      res.status(201).json({
+        success: true,
+      });
+    })
+    .catch((error) => {
+      next(error);
+    });
+};
+
+exports.deliveredMessage = async (req, res, next) => {
+  const messageId = req.body._id;
+  await Message.findByIdAndUpdate(messageId, { status: "delivered" })
+    .then(() => {
+      res.status(201).json({
+        success: true,
+      });
+    })
+    .catch((error) => {
+      next(error);
+    });
 };
 
 exports.getMessage = async (req, res, next) => {

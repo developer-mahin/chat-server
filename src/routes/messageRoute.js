@@ -4,8 +4,6 @@ const messageController = require("../controllers/messageController");
 const {
   authFilteringMiddleware,
 } = require("../middleware/userFilteringMiddleware");
-const uploadMessage = require("../middleware/fileUploadInMessage");
-const { newMiddleWare } = require("../middleware/newMiddleware");
 
 router.post(
   "/send_message",
@@ -17,6 +15,18 @@ router.post(
   "/send_img_message",
   authFilteringMiddleware,
   messageController.sendImageMessage
+);
+
+router.post(
+  "/seen_message",
+  authFilteringMiddleware,
+  messageController.seenMessage
+);
+
+router.post(
+  "/delivered_message",
+  authFilteringMiddleware,
+  messageController.deliveredMessage
 );
 
 router.post(
